@@ -3,3 +3,12 @@
 /* Note: an asteroid image is included in this repo.
 Feel free to use it if you like. */
 
+.scoreboard {
+  padding: 10px;
+  position: absolute;
+  top: 40px;
+  right: 40px;
+  background: #ddd;
+  text-align: right;
+  border-radius: 3px;
+}
