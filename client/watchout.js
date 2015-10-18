@@ -41,7 +41,8 @@ var Enemy = function(position) {
 
 Enemy.prototype.move = function() {
   // update this.position with a random pair of coords
-  this.position = randomCoordinateGenerator();
+  var pos = randomCoordinateGenerator();
+  this.position = pos;
 };
 
 function randomCoordinateGenerator() {
@@ -74,16 +75,68 @@ var enemyInstances = board.selectAll('circle').data(enemiesArr).enter().append('
   return d.position.x;
 }).attr('cy', function(d){
   return d.position.y;
-}).attr('r', 10).attr('fill', 'red');
+}).attr('r', 10).attr('fill', 'red').attr('class', 'enemy');
 
 
 // every tick: use d3.timer(xMilliSec, cb) to call the transition function(takes a cb [randomMove]) to animate
 // use the transition function with tween to call collision detection function
 
+d3.timer(300, function(){
+  // generate new x- and y- coordinates for each enemy
+    // call .move on all enemy instances
+  // based on new x and y, transition all enemy instances
+    // use transition.attr() on each enemy instance to set new cx and cy values (this.position.x, this.position.y)
+  // check if player object comes into contact with any enemy
+});
 
+// Use setInterval to call .move() on each enemy
+setInterval(function(){
+  enemiesArr.forEach(function(enemy) {
+    enemy.move();
+  });
 
+  board.selectAll('.enemy').transition().duration(2000).tween('tween', wrapper).attr('cx', function(d){ return d.position.x; })
+       .attr('cy', function(d){ return d.position.y; });
 
+  // return a function that compares this.position.x to player.position.x (same for .position.y)
+    // if they're equal
+      // reset current score
+}, 3000);
 
+function collisionDetection(d, enemyX, enemyY){
+  d.position.x = enemyX;
+  d.position.y = enemyY;
+  var playerUpperX = + playerInstance.attr('cx') + 10;
+  var playerLowerX = + playerInstance.attr('cx') - 10;
+  var playerUpperY = + playerInstance.attr('cy') + 10;
+  var playerLowerY = + playerInstance.attr('cy') - 10;
+
+  // var enemyUpperX = d.attr('cx') + 10;
+  // var enemyLowerX = d.attr('cx') - 10;
+  // var enemyUpperY = d.attr('cy') + 10;
+  // var enemyLowerY = d.attr('cy') - 10;
+
+  var collision = (d.position.x > playerLowerX && d.position.x < playerUpperX) && (d.position.y > playerLowerY && d.position.y < playerUpperY);
+
+  if( collision ){
+    console.log('collision detected!');
+    d3.select('body').select('.scoreboard').attr('background', '#ff0000');
+    // reset score
+    // blink screen red or something
+  }
+  return false;
+};
+function wrapper(d){
+  var context = this;
+
+  d3.timer(function(){
+    var enemyX = + d3.select(context).attr('cx');
+    var enemyY = + d3.select(context).attr('cy');
+    collisionDetection(d, enemyX, enemyY);
+  });
+};
+
+// Use d3.transition to update attribute to reflect move
 
 
 // collision detection
