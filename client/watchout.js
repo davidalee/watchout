@@ -103,6 +103,20 @@ setInterval(function(){
       // reset current score
 }, 3000);
 
+// collision detection
+  // detect when a player collides with an enemy
+  // list coordinates that define the area of each enemy
+  // set an object up with player area coordinates
+    // check (at some interval) if player coords and enemy coords are equal
+var collisionFlag = false;
+
+setInterval(function(){
+  if( collisionFlag ){
+    stats.collisionCount++;
+    collisionFlag = false;
+  }
+}, 1000);
+
 function collisionDetection(d, enemyX, enemyY){
   d.position.x = enemyX;
   d.position.y = enemyY;
@@ -110,22 +124,40 @@ function collisionDetection(d, enemyX, enemyY){
   var playerLowerX = + playerInstance.attr('cx') - 10;
   var playerUpperY = + playerInstance.attr('cy') + 10;
   var playerLowerY = + playerInstance.attr('cy') - 10;
-
-  // var enemyUpperX = d.attr('cx') + 10;
-  // var enemyLowerX = d.attr('cx') - 10;
-  // var enemyUpperY = d.attr('cy') + 10;
-  // var enemyLowerY = d.attr('cy') - 10;
-
   var collision = (d.position.x > playerLowerX && d.position.x < playerUpperX) && (d.position.y > playerLowerY && d.position.y < playerUpperY);
+
+  // function throttledCollision (){
+  //   // increment score at most once per second
+  //   // var wait = false;
+  //   if( !wait ){
+  //     stats.collisionCount++;
+  //     wait = true;
+  //     setTimeout(function(){
+  //       wait = false;
+  //     }, 1000);
+  //     console.log(wait);
+  //     setTimeout(function(){ console.log(wait)}, 1500);
+  //   }
+
+  // };
 
   if( collision ){
     console.log('collision detected!');
-    d3.select('body').select('.scoreboard').attr('background', '#ff0000');
+    collisionFlag = true;
+    
+    if( stats.currentScore > stats.highScore ){
+      stats.highScore = stats.currentScore;
+    }
     // reset score
-    // blink screen red or something
+    stats.currentScore = 0;
+    // increment collision count via throttle function
+    // if( !wait ){
+    //   throttledCollision();
+    // }
   }
   return false;
 };
+
 function wrapper(d){
   var context = this;
 
@@ -133,26 +165,21 @@ function wrapper(d){
     var enemyX = + d3.select(context).attr('cx');
     var enemyY = + d3.select(context).attr('cy');
     collisionDetection(d, enemyX, enemyY);
+    stats.currentScore++;
   });
 };
 
 // Use d3.transition to update attribute to reflect move
 
 
-// collision detection
-  // detect when a player collides with an enemy
-  // list coordinates that define the area of each enemy
-  // set an object up with player area coordinates
-    // check (at some interval) if player coords and enemy coords are equal
-      // if collision then update score object
-// update score based on either: 1) JS ticks, or 2) explore d3
-// in some way measure time
-  // possible d3 ticks at any interval (1/10th sec 1/1000th sec)
-    // every tick: check for collisions
-    // every tick: update score (if needed)
 
+// every tick: increment current score
+// every tick: if currentScore > highScore
+  // set highScore = currentScore;
 
-// maybe use General Update pattern style to generate enemies and append to DOM (game board?)
+function scoreKeeper (){
+  // collision count and high score will be updated when there is a collision
+};
 
 
 
