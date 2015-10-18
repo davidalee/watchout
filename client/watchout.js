@@ -1,4 +1,4 @@
-// start slingin' some d3 here.
+// Some d3 here:
 
 var options = {
   'width': 800,
@@ -12,35 +12,24 @@ var stats = {
   'collisionCount': 0
 };
 
-var axes = {
-  'x': d3.scale.linear().domain([0, 100]).range([0, options.width]),
-  'y': d3.scale.linear().domain([0, 100]).range([0, options.height])
-};
-
+// Create Board:
 var board = d3.select('#gameboard').append('svg').attr('width', options.width).attr('height', options.height);
 
-// create player object
+// Create player object:
 var player = {
   position: {
     'x': 400,
     'y': 250
   }
-
-  // changing player object position based on drag input
-
 };
-// create Enemy class
+
+// Create Enemy class:
 var Enemy = function(position) {
   this.position = position || randomCoordinateGenerator();
-
-  // consider shape property
-
-  // random movement within board
-
 };
 
 Enemy.prototype.move = function() {
-  // update this.position with a random pair of coords
+  // Update this.position with a random pair of coords:
   var pos = randomCoordinateGenerator();
   this.position = pos;
 };
@@ -48,11 +37,11 @@ Enemy.prototype.move = function() {
 function randomCoordinateGenerator() {
   var x = Math.floor(Math.random() * options.width);
   var y = Math.floor(Math.random() * options.height);
-  //return two random coordinates (on the board area)
+  // Return two random coordinates (on the board area):
   return {x: x, y: y};
 };
 
-// Create player and append to DOM
+// Create player and append to DOM:
 var playerArr = [player];
 var playerInstance = board.selectAll('circle').data(playerArr).enter().append('circle')
                           .attr('cx', player.position.x).attr('cy', player.position.y).attr('r', 10);
@@ -66,7 +55,7 @@ var drag = d3.behavior.drag().on('drag', function(playerOb) {
 });
 playerInstance.call(drag);
 
-// Create and instantiate Enemies, append to DOM
+// Create and instantiate Enemies, append to DOM:
 var enemiesArr = [];
 for( var i = 0; i < options.enemyCount; i++ ){
   enemiesArr.push(new Enemy);
@@ -77,19 +66,7 @@ var enemyInstances = board.selectAll('circle').data(enemiesArr).enter().append('
   return d.position.y;
 }).attr('r', 10).attr('fill', 'red').attr('class', 'enemy');
 
-
-// every tick: use d3.timer(xMilliSec, cb) to call the transition function(takes a cb [randomMove]) to animate
-// use the transition function with tween to call collision detection function
-
-d3.timer(300, function(){
-  // generate new x- and y- coordinates for each enemy
-    // call .move on all enemy instances
-  // based on new x and y, transition all enemy instances
-    // use transition.attr() on each enemy instance to set new cx and cy values (this.position.x, this.position.y)
-  // check if player object comes into contact with any enemy
-});
-
-// Use setInterval to call .move() on each enemy
+// Use setInterval to call .move() on each enemy:
 setInterval(function(){
   enemiesArr.forEach(function(enemy) {
     enemy.move();
@@ -97,17 +74,13 @@ setInterval(function(){
 
   board.selectAll('.enemy').transition().duration(2000).tween('tween', wrapper).attr('cx', function(d){ return d.position.x; })
        .attr('cy', function(d){ return d.position.y; });
-
-  // return a function that compares this.position.x to player.position.x (same for .position.y)
-    // if they're equal
-      // reset current score
 }, 3000);
 
-// collision detection
-  // detect when a player collides with an enemy
-  // list coordinates that define the area of each enemy
-  // set an object up with player area coordinates
-    // check (at some interval) if player coords and enemy coords are equal
+// Collision Detection:
+  // Detect when a player collides with an enemy.
+  // List coordinates that define the area of each enemy.
+  // Set an object up with player area coordinates.
+    // Check (at some interval) if player coords and enemy coords are equal.
 var collisionFlag = false;
 
 setInterval(function(){
@@ -126,34 +99,14 @@ function collisionDetection(d, enemyX, enemyY){
   var playerLowerY = + playerInstance.attr('cy') - 10;
   var collision = (d.position.x > playerLowerX && d.position.x < playerUpperX) && (d.position.y > playerLowerY && d.position.y < playerUpperY);
 
-  // function throttledCollision (){
-  //   // increment score at most once per second
-  //   // var wait = false;
-  //   if( !wait ){
-  //     stats.collisionCount++;
-  //     wait = true;
-  //     setTimeout(function(){
-  //       wait = false;
-  //     }, 1000);
-  //     console.log(wait);
-  //     setTimeout(function(){ console.log(wait)}, 1500);
-  //   }
-
-  // };
-
   if( collision ){
-    console.log('collision detected!');
     collisionFlag = true;
     
     if( stats.currentScore > stats.highScore ){
       stats.highScore = stats.currentScore;
     }
-    // reset score
+    // Reset score:
     stats.currentScore = 0;
-    // increment collision count via throttle function
-    // if( !wait ){
-    //   throttledCollision();
-    // }
   }
   return false;
 };
@@ -165,28 +118,19 @@ function wrapper(d){
     var enemyX = + d3.select(context).attr('cx');
     var enemyY = + d3.select(context).attr('cy');
     collisionDetection(d, enemyX, enemyY);
-    stats.currentScore++;
+
   });
 };
 
-// Use d3.transition to update attribute to reflect move
-
-
-
-// every tick: increment current score
-// every tick: if currentScore > highScore
-  // set highScore = currentScore;
-
-function scoreKeeper (){
-  // collision count and high score will be updated when there is a collision
-};
-
-
-
-
+setInterval(function(){
+  var scores = [];
+  stats.currentScore++;
+  scores.push(stats.highScore, stats.currentScore, stats.collisionCount);
+  d3.selectAll('span').data(scores).text(function(d){ return d; });
+}, 100);
 
 // ****** Cool ideas ******
-// having an enemy that moves towards the player (using .force, .gravity)
+// Create a boss enemy (using .force, .gravity?)
 // point threshold tiers?
 // implement difficulty tiers (e.g., hard mode, nightmare mode) that can be toggled on/off?
   // change enemy to somethng else for each level (whirling shuriken)
